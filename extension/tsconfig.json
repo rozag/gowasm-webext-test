@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "checkJs": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "strictNullChecks": true,
+    "noEmitOnError": true,
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"]
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": ["./src"],
+  "exclude": ["./node_modules", "./dist"]
+}

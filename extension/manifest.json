@@ -1,0 +1,14 @@
+{
+  "name": "gowasm-webext-test",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "dist/worker.js",
+    "type": "module"
+  },
+  "permissions": ["background", "webRequest", "declarativeNetRequest"],
+  "host_permissions": ["https://app.wingman.wtf/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}
