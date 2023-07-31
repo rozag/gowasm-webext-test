@@ -1,27 +1,35 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"net"
+	"time"
+
+	"nhooyr.io/websocket"
 )
 
-func main() {
-	const id = 0
+// NOTE: websockify should forward websocket traffic as TCP traffic to server:
+// podman run -it --rm -p 7000:80 novnc/websockify 80 host.containers.internal:8080
 
-	conn, err := net.Dial("tcp", ":8080")
+const addr = "ws://:7000"
+
+func main() {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	conn, _, err := websocket.Dial(ctx, addr, nil)
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close(websocket.StatusNormalClosure, "")
 
-	defer conn.Close()
+	const id = 0
 
 	const (
 		msgSuccess byte = 0x00
 		msgLess    byte = 0x01
 		msgMore    byte = 0x02
 	)
-
-	buf := make([]byte, 1)
 
 	min := byte(0x00)
 	max := byte(0xFF)
@@ -38,19 +46,19 @@ func main() {
 			guess = byte((sum + 1) / 2)
 		}
 
-		n, err := conn.Write([]byte{guess})
+		err := conn.Write(ctx, websocket.MessageBinary, []byte{guess})
 		if err != nil {
 			panic(err)
-		}
-		if n != 1 {
-			panic("Written bytes count != 1")
 		}
 
-		n, err = conn.Read(buf)
+		msgType, buf, err := conn.Read(ctx)
 		if err != nil {
 			panic(err)
 		}
-		if n != 1 {
+		if msgType != websocket.MessageBinary {
+			panic(fmt.Errorf("expected websocket.MessageBinary, got: %v", msgType))
+		}
+		if len(buf) != 1 {
 			panic("Read bytes count != 1")
 		}
 
