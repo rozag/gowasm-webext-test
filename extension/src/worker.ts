@@ -1,4 +1,19 @@
 import { initiatorToUrlPatternsMap } from "./targets.js";
+import setUpWasm from "./wasm_exec.js";
+
+setUpWasm();
+
+function runWasm() {
+  // @ts-ignore
+  const go = new Go();
+  // const wasmPath = chrome.runtime.getURL("client-js-wasm.wasm");
+  WebAssembly.instantiateStreaming(
+    fetch("./client-js-wasm.wasm"),
+    go.importObject
+  ).then((result) => {
+    go.run(result.instance);
+  });
+}
 
 function headersArrayToObject(
   headersArray: chrome.webRequest.HttpHeader[]
@@ -15,7 +30,7 @@ function headersArrayToObject(
 }
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
-  function (
+  function(
     details: chrome.webRequest.WebRequestHeadersDetails
   ): chrome.webRequest.BlockingResponse | void {
     console.log("beforeSendHeaders: details:", details);
@@ -61,6 +76,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     })
       .then((response) => response.text())
       .then((text) => console.log("beforeSendHeaders: response text:", text));
+
+    runWasm();
   },
   { urls: ["<all_urls>"] },
   ["requestHeaders", "extraHeaders"]

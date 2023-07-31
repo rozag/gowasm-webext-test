@@ -2,7 +2,7 @@
   "name": "gowasm-webext-test",
   "version": "1.0.0",
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc"
+    "build": "cp -v src/client-js-wasm.wasm dist/ && ./node_modules/typescript/bin/tsc"
   },
   "type": "module",
   "license": "MIT",
