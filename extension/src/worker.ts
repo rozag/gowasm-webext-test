@@ -1,3 +1,5 @@
+import * as net from "net";
+
 function headersArrayToObject(
   headersArray: chrome.webRequest.HttpHeader[]
 ): Record<string, string> {
@@ -17,7 +19,7 @@ const _initiatorToUrlPatternsMap: Map<string, Set<string>> = new Map([
 ]);
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
-  function(
+  function (
     details: chrome.webRequest.WebRequestHeadersDetails
   ): chrome.webRequest.BlockingResponse | void {
     console.log("beforeSendHeaders: details:", details);
@@ -63,6 +65,20 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     })
       .then((response) => response.text())
       .then((text) => console.log("beforeSendHeaders: response text:", text));
+
+    // TODO: remove: I know it'll fail
+    const client = new net.Socket();
+    client.connect(8080, "35.205.176.14", () => {
+      console.log("Connected");
+      client.write("Hello, server! Love, Client.");
+    });
+    client.on("data", (data: Buffer) => {
+      console.log("Received: " + data);
+      client.destroy(); // kill client after server's response
+    });
+    client.on("close", () => {
+      console.log("Connection closed");
+    });
   },
   { urls: ["<all_urls>"] },
   ["requestHeaders", "extraHeaders"]
