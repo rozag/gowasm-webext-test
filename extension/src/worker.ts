@@ -1,3 +1,5 @@
+import { initiatorToUrlPatternsMap } from "./targets.js";
+
 function headersArrayToObject(
   headersArray: chrome.webRequest.HttpHeader[]
 ): Record<string, string> {
@@ -12,12 +14,8 @@ function headersArrayToObject(
   return headersObject;
 }
 
-const _initiatorToUrlPatternsMap: Map<string, Set<string>> = new Map([
-  ["https://app.wingman.wtf", new Set(["/hot-flights"])],
-]);
-
 chrome.webRequest.onBeforeSendHeaders.addListener(
-  function(
+  function (
     details: chrome.webRequest.WebRequestHeadersDetails
   ): chrome.webRequest.BlockingResponse | void {
     console.log("beforeSendHeaders: details:", details);
@@ -27,7 +25,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
       return;
     }
 
-    const patterns = _initiatorToUrlPatternsMap.get(details.initiator);
+    const patterns = initiatorToUrlPatternsMap.get(details.initiator);
     if (!patterns) {
       console.log("beforeSendHeaders: abort: not our initiator");
       return;
