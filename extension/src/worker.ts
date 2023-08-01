@@ -3,6 +3,14 @@ import setUpWasm from "./wasm_exec.js";
 
 setUpWasm();
 
+const logOn = false;
+
+function log(...args: any[]) {
+  if (logOn) {
+    console.log(...args);
+  }
+}
+
 function runWasm() {
   // @ts-ignore
   const go = new Go();
@@ -33,16 +41,16 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   function(
     details: chrome.webRequest.WebRequestHeadersDetails
   ): chrome.webRequest.BlockingResponse | void {
-    console.log("beforeSendHeaders: details:", details);
+    log("beforeSendHeaders: details:", details);
 
     if (!details.initiator) {
-      console.log("beforeSendHeaders: abort: no initiator");
+      log("beforeSendHeaders: abort: no initiator");
       return;
     }
 
     const patterns = initiatorToUrlPatternsMap.get(details.initiator);
     if (!patterns) {
-      console.log("beforeSendHeaders: abort: not our initiator");
+      log("beforeSendHeaders: abort: not our initiator");
       return;
     }
 
@@ -54,13 +62,13 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
       }
     }
     if (!isMatchingUrl) {
-      console.log("beforeSendHeaders: abort: not our URL pattern");
+      log("beforeSendHeaders: abort: not our URL pattern");
       return;
     }
 
     if (details.method !== "GET") {
       // TODO: other methods should be supported later
-      console.log("beforeSendHeaders: abort: not GET method");
+      log("beforeSendHeaders: abort: not GET method");
       return;
     }
 
@@ -68,14 +76,14 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     if (details.requestHeaders) {
       headers = headersArrayToObject(details.requestHeaders);
     }
-    console.log("beforeSendHeaders: headers:", headers);
+    log("beforeSendHeaders: headers:", headers);
 
     fetch(details.url, {
       method: details.method,
       headers: headers,
     })
       .then((response) => response.text())
-      .then((text) => console.log("beforeSendHeaders: response text:", text));
+      .then((text) => log("beforeSendHeaders: response text:", text));
 
     runWasm();
   },
