@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -17,11 +18,24 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 
-	conn, _, err := websocket.Dial(ctx, addr, nil)
+	conn, _, err := websocket.Dial(ctx, addr, &websocket.DialOptions{
+		Subprotocols: []string{"tlsbum-client-to-verifier"},
+	})
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "")
+
+	targetUrl := "tcp://127.0.0.1:8080"
+	data, err := json.Marshal(targetUrl)
+	if err != nil {
+		panic(err)
+	}
+
+	err = conn.Write(ctx, websocket.MessageText, data)
+	if err != nil {
+		panic(err)
+	}
 
 	const id = 0
 
