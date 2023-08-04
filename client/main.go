@@ -9,9 +9,6 @@ import (
 	"nhooyr.io/websocket"
 )
 
-// NOTE: websockify should forward websocket traffic as TCP traffic to server:
-// podman run -it --rm -p 7000:80 novnc/websockify 80 host.containers.internal:8080
-
 const addr = "ws://localhost:7000"
 
 func main() {
